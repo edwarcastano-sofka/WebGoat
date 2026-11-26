@@ -29,7 +29,7 @@ jobs:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         run: >
           mvn -B --no-transfer-progress -Pcoverage test
-          -Dtest='!org/owasp/webgoat/playwright/**'
+          -Dtest='!org/owasp/webgoat/playwright/**,!org/owasp/webgoat/integration/**'
           -Dsurefire.failIfNoSpecifiedTests=false
           org.sonarsource.scanner.maven:sonar-maven-plugin:sonar
           -Dsonar.host.url=https://sonarcloud.io
