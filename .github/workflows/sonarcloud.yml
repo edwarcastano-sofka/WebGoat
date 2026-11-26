@@ -1,0 +1,37 @@
+name: SonarCloud analysis
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    types: [ opened, synchronize, reopened ]
+  workflow_dispatch:
+
+jobs:
+  sonarcloud:
+    name: SonarCloud
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0  # full history improves new-code detection
+      - name: Set up JDK
+        uses: ./.github/actions/java-setup
+        with:
+          cache: 'maven'
+      - name: Cache SonarCloud packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.sonar/cache
+          key: ${{ runner.os }}-sonar
+          restore-keys: ${{ runner.os }}-sonar
+      - name: Build, test and analyze
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        run: >
+          mvn -B --no-transfer-progress -Pcoverage test
+          org.sonarsource.scanner.maven:sonar-maven-plugin:sonar
+          -Dsonar.host.url=https://sonarcloud.io
+          -Dsonar.organization=edwarcastano-sofka
+          -Dsonar.projectKey=edwarcastano-sofka_WebGoat
+          -Dsonar.qualitygate.wait=true
+          -Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco-unit-test-coverage-report/jacoco.xml
